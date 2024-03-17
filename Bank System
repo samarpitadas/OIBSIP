@@ -1,0 +1,151 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Account {
+    private int accountId;
+    private double balance;
+
+    public Account(int accountId, double balance) {
+        this.accountId = accountId;
+        this.balance = balance;
+    }
+
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void deposit(double amount) {
+        balance += amount;
+    }
+
+    public void withdraw(double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            System.out.println("Withdraw successful. Current balance: "+balance);
+        } else {
+            System.out.println("Insufficient funds!");
+        }
+    }
+
+    public void transfer(Account recipient, double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            recipient.deposit(amount);
+            System.out.println("Transfer successful!");
+        } else {
+            System.out.println("Insufficient funds for transfer!");
+        }
+    }
+}
+
+public class BankSystem {
+    private static ArrayList<Account> accounts = new ArrayList<>();
+    private static int nextAccountId = 2001;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\n1. Create Account");
+            System.out.println("2. Deposit");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Transfer");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    createAccount();
+                    break;
+                case 2:
+                    deposit();
+                    break;
+                case 3:
+                    withdraw();
+                    break;
+                case 4:
+                    transfer();
+                    break;
+                case 5:
+                    System.out.println("Exiting...");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        }
+    }
+
+    private static void createAccount() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter initial balance: ");
+        double balance = scanner.nextDouble();
+        Account account = new Account(nextAccountId++, balance);
+        accounts.add(account);
+        System.out.println("Account created with ID: " + account.getAccountId());
+    }
+
+    private static void deposit() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter account ID: ");
+        int accountId = scanner.nextInt();
+        System.out.print("Enter deposit amount: ");
+        double amount = scanner.nextDouble();
+        Account account = findAccount(accountId);
+        if (account != null) {
+            account.deposit(amount);
+            System.out.println("Deposit successful. New balance: " + account.getBalance());
+        } else {
+            System.out.println("Account not found!");
+        }
+    }
+
+    private static void withdraw() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter account ID: ");
+        int accountId = scanner.nextInt();
+        System.out.print("Enter withdrawal amount: ");
+        double amount = scanner.nextDouble();
+        Account account = findAccount(accountId);
+        if (account != null) {
+            account.withdraw(amount);
+        } else {
+            System.out.println("Account not found!");
+        }
+    }
+
+    private static void transfer() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter sender account ID: ");
+        int senderId = scanner.nextInt();
+        System.out.print("Enter recipient account ID: ");
+        int recipientId = scanner.nextInt();
+        System.out.print("Enter transfer amount: ");
+        double amount = scanner.nextDouble();
+
+        Account sender = findAccount(senderId);
+        Account recipient = findAccount(recipientId);
+
+        if (sender != null && recipient != null) {
+            sender.transfer(recipient, amount);
+            System.out.println("Sender's balance: " + sender.getBalance());
+            System.out.println("Recipient's balance: " + recipient.getBalance());
+        } else {
+            System.out.println("One or both accounts not found!");
+        }
+    }
+
+    private static Account findAccount(int accountId) {
+        for (Account account : accounts) {
+            if (account.getAccountId() == accountId) {
+                return account;
+            }
+        }
+        return null;
+    }
+}
